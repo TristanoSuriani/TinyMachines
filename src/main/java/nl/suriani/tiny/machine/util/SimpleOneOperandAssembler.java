@@ -54,7 +54,7 @@ public interface SimpleOneOperandAssembler {
                 .filter(label -> label.value().equals(operand))
                 .map(Label::lineNumber)
                 .findFirst()
-                .orElse(Integer.parseInt(operand));
+                .orElseGet(() -> Integer.parseInt(operand));
     }
 
     record Label(String value, int lineNumber) {

@@ -219,6 +219,19 @@ public class PascalMachine {
                 }
             }
 
+            case LDA -> {
+                if (s0 < 1) {
+                    state = 2;
+                    return state;
+                }
+                int addr = pop();
+                if (addr < 0 || addr >= memory.length) {
+                    state = 2;
+                    return state;
+                }
+                push(memory[addr]);
+            }
+
             case STR -> {
                 if (s0 < 2) {
                     state = 2;
@@ -251,6 +264,14 @@ public class PascalMachine {
                 }
                 memory[addr] = val;
             }
+
+            case SYS -> {}
+
+            default -> {
+                System.out.println("Unsupported opcode: " + operation);
+                state = 2;
+                return state;
+            }
         }
         pc = pc + 1;
         return state;
@@ -276,7 +297,7 @@ public class PascalMachine {
         return val & 0xFF;
     }
 
-    private static int opcodeOf(String instruction) {
+    public static int opcodeOf(String instruction) {
         return switch (instruction.toUpperCase()) {
             case "PUSH" -> PUSH;
             case "POP" -> POP;
