@@ -1,5 +1,6 @@
 package nl.suriani.tiny.machine.stack;
 
+import lombok.SneakyThrows;
 import nl.suriani.tiny.machine.util.SimpleOneOperandAssembler;
 import nl.suriani.tiny.machine.util.SimpleOneOperandDecoder;
 
@@ -12,70 +13,30 @@ public class PascalMachine {
 
     private int[] rom = new int[8];
 
-    private static final int PUSH = 0;
-    private static final int POP  = 1;
-    private static final int SWAP = 2;
-    private static final int DUP  = 3;
-    private static final int OVER = 4;
-    private static final int ADD  = 5;
-    private static final int SUB  = 6;
-    private static final int MOD  = 7;
-    private static final int JMP  = 8;
-    private static final int JNZ  = 9;
-    private static final int JMZ  = 10;
-    private static final int LDA  = 11;
-    private static final int STR  = 12;
-    private static final int LDX  = 13;
-    private static final int STX  = 14;
-    private static final int SYS  = 15;
+    public static final int PUSH = 0;
+    public static final int POP  = 1;
+    public static final int SWAP = 2;
+    public static final int DUP  = 3;
+    public static final int OVER = 4;
+    public static final int ADD  = 5;
+    public static final int SUB  = 6;
+    public static final int MOD  = 7;
+    public static final int JMP  = 8;
+    public static final int JNZ  = 9;
+    public static final int JMZ  = 10;
+    public static final int LDA  = 11;
+    public static final int STR  = 12;
+    public static final int LDX  = 13;
+    public static final int STX  = 14;
+    public static final int SYS  = 15;
 
-    private static final int STACK_SIZE  = 8;
-    private static final int MEMORY_SIZE  = 32;
-    private static final int BITS_OPCODE  = 4;
-    private static final int BITS_OPERAND  = 8;
+    public static final int STACK_SIZE  = 256;
+    public static final int MEMORY_SIZE  = 256;
+    public static final int BITS_OPCODE  = 4;
+    public static final int BITS_OPERAND  = 8;
 
     public PascalMachine(int[] rom) {
         this.rom = rom;
-    }
-
-    public static void main(String[] args) {
-
-        /*
-        //        * 0: 1
-        //        * 1: 1 1
-        //        * 2: 1 2 1
-        //        * 3: 1 3 3 1
-        //        * 4: 1 4 6 4 1
-        //        * */
-
-        int n = 4;
-        int k = 3;
-        // P (4, 3) = 4 (same as P (4, 1))
-
-
-        /*PascalMachine pm = new PascalMachine(new int[]{
-                 encode(PUSH, n),        // n
-                 encode(PUSH, k),        // n k
-                 encode(DUP),            // n k k
-                 encode(PUSH, 1),    // n k 1 (addr[k] = 1)
-                 encode(STR),             // [0, k]
-        });
-         */
-
-        String program =
-                """
-                PUSH 4      ; n
-                PUSH 3      ; n k
-                DUP
-                PUSH 1      ; n k 1
-                ;; to be continued
-                """;
-
-        int[] rom = SimpleOneOperandAssembler.assemble(program, BITS_OPCODE, BITS_OPERAND,PascalMachine::opcodeOf);
-
-        PascalMachine pm = new PascalMachine(rom);
-        int result = pm.run();
-        System.out.println(result);
     }
 
     public int run() {
@@ -94,6 +55,7 @@ public class PascalMachine {
         return peek();
     }
 
+    @SneakyThrows
     public int step() {
         if (state == 0) {
             return state;
@@ -265,7 +227,14 @@ public class PascalMachine {
                 memory[addr] = val;
             }
 
-            case SYS -> {}
+            case SYS -> {
+                switch (operand) {
+                    case 252 -> push((char) System.in.read());
+                    case 253 -> push(System.in.read());
+                    case 254 -> System.out.println((char) pop());
+                    case 255 -> System.out.println(pop());
+                }
+            }
 
             default -> {
                 System.out.println("Unsupported opcode: " + operation);

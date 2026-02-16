@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface SimpleOneOperandAssembler {
-    static int[] assemble(String program, int bitsOpcode, int bitsOperand, Function<String, Integer> translateOpcode) {
+    static int[] assemble(String program, int bitsOpcode, int bitsOperand, String delimiter, Function<String, Integer> translateOpcode) {
         int bOpcode = bitsOpcode;
         int bOperand = bitsOperand;
 
@@ -16,7 +16,7 @@ public interface SimpleOneOperandAssembler {
         int w = bOpcode + bOperand;
         if (w <= 0 || w > 31) throw new IllegalArgumentException("word bits must be 1..31");
 
-        List<String> lines = new ArrayList<>(Arrays.stream(program.split("\n"))
+        List<String> lines = new ArrayList<>(Arrays.stream(program.split(delimiter))
                 .map(String::trim)
                 .map(line -> line.split(";")[0].trim())    // strip comments
                 .filter(line -> !line.isEmpty())
@@ -47,6 +47,10 @@ public interface SimpleOneOperandAssembler {
             instructions[i] = SimpleOneOperandEncoder.encode(opcode, operand, bOpcode, bOperand);
         }
         return instructions;
+    }
+
+    static int[] assemble(String program, int bitsOpcode, int bitsOperand, Function<String, Integer> translateOpcode) {
+        return assemble(program, bitsOpcode, bitsOperand, "\n", translateOpcode);
     }
 
     private static int normaliseOperand(String operand, List<Label> labels) {
