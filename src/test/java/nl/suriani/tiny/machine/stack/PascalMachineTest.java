@@ -83,4 +83,61 @@ class PascalMachineTest {
         var result = pm.run();
         System.out.println(result);
     }
+
+    @Test
+    void sherezade() {
+        var program = """
+                    PUSH 0
+                    PUSH 4      ; thieves
+                    STR
+                    
+                    PUSH 1
+                    PUSH 1      ; diamonds
+                    STR
+                    
+                    PUSH 2
+                    PUSH 2      ; x in 2 * (n + x)
+                    STR
+                    
+                    loop:
+                        PUSH 0
+                        LDA     ; thieves
+                        PUSH 0
+                        SUB     
+                        JMZ end    ; if thieves == 0 go to end;
+                        
+                        ; else
+                        PUSH 0
+                        LDA
+                        PUSH 1
+                        SUB         ; thieves - 1
+                        PUSH 0
+                        SWAP
+                        STR
+                        
+                        PUSH 1
+                        LDA
+                        PUSH 2
+                        LDA
+                        ADD
+                        DUP
+                        ADD         ; 2 * (nDiamonds + 1)
+                        PUSH 1
+                        SWAP
+                        STR
+                        JMP loop
+                        
+                    end:
+                        PUSH 1
+                        LDA
+                        SYS 255
+                           
+                    """;
+
+        var instructions = SimpleOneOperandAssembler.assemble(program, 4, 8, PascalMachine::opcodeOf);
+        var pm = new PascalMachine(instructions);
+
+        var result = pm.run();
+        System.out.println(result);
+    }
 }
